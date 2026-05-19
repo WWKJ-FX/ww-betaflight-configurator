@@ -588,6 +588,9 @@ firmware_flasher.initialize = async function (callback) {
                     $("div.expertOptions").toggle(expertMode);
                     // Need to reset core build mode
                     $("input.corebuild_mode").trigger("change");
+                } else {
+                    $("div.build_configuration").slideUp();
+                    $("div.commitSelection").hide();
                 }
 
                 if (detail.configuration && !self.isConfigLocal) {
@@ -600,6 +603,9 @@ firmware_flasher.initialize = async function (callback) {
             try {
                 let targetDetail = await self.buildApi.loadTarget(target, release);
                 await LoadTargetDetail(targetDetail);
+                if (targetDetail?.prebuilt === true) {
+                    return;
+                }
             } catch (error) {
                 console.error("Failed to load target:", error);
                 loadFailed();
@@ -1047,6 +1053,10 @@ firmware_flasher.initialize = async function (callback) {
         });
 
         async function enforceOSDSelection() {
+            if (self.targetDetail?.prebuilt === true) {
+                return true;
+            }
+
             const firmwareVersion = $('select[name="firmware_version"] option:selected').text();
 
             // Skip OSD selection enforcement for firmware versions 4.3.x
@@ -1117,7 +1127,34 @@ firmware_flasher.initialize = async function (callback) {
                 processFile(await self.buildApi.loadTargetFirmware(response.url), response.file);
             }
 
+            async function loadPrebuiltFirmware(targetDetail) {
+                const firmwareUrl = targetDetail.url;
+                const firmwareFile =
+                    targetDetail.file ||
+                    firmwareUrl?.split("/").pop() ||
+                    `${targetDetail.target}.${targetDetail.extension || "hex"}`;
+
+                if (!firmwareUrl) {
+                    loadFailed();
+                    return;
+                }
+
+                self.targetDetail.file = firmwareFile;
+                const firmware = await self.buildApi.loadTargetFirmware(firmwareUrl);
+                if (!firmware) {
+                    loadFailed();
+                    return;
+                }
+
+                processFile(firmware, firmwareFile);
+            }
+
             async function requestCloudBuild(targetDetail) {
+                if (targetDetail.prebuilt === true) {
+                    await loadPrebuiltFirmware(targetDetail);
+                    return;
+                }
+
                 let request = {
                     target: targetDetail.target,
                     release: targetDetail.release,

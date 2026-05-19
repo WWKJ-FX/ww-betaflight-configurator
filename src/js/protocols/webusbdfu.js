@@ -1211,9 +1211,9 @@ class WEBUSBDFU_protocol extends EventTarget {
 
                                 // Show notification
                                 if (getConfig("showNotifications").showNotifications) {
-                                    NotificationManager.showNotification("Betaflight App", {
+                                    NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                                         body: i18n.getMessage("programmingSuccessfulNotification"),
-                                        icon: "/images/pwa/favicon.ico",
+                                        icon: "/images/pwa/wwkj_favicon.ico",
                                     });
                                 }
 
@@ -1229,9 +1229,9 @@ class WEBUSBDFU_protocol extends EventTarget {
 
                                 // Show notification
                                 if (getConfig("showNotifications").showNotifications) {
-                                    NotificationManager.showNotification("Betaflight App", {
+                                    NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                                         body: i18n.getMessage("programmingFailedNotification"),
-                                        icon: "/images/pwa/favicon.ico",
+                                        icon: "/images/pwa/wwkj_favicon.ico",
                                     });
                                 }
 

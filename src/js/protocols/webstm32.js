@@ -682,7 +682,7 @@ class STM32Protocol {
 
                     this.send([this.command.erase, 0xbc], 1, (reply) => {
                         if (this.verify_response(this.status.ACK, reply)) {
-                            // the bootloader receives one byte that contains N, the number of pages to be erased â€“ 1
+                            // the bootloader receives one byte that contains N, the number of pages to be erased â€?1
                             const maxAddress =
                                 this.hex.data[this.hex.data.length - 1].address +
                                 this.hex.data[this.hex.data.length - 1].bytes -
@@ -911,9 +911,9 @@ class STM32Protocol {
 
                             // Show notification
                             if (getConfig("showNotifications").showNotifications) {
-                                NotificationManager.showNotification("Betaflight App", {
+                                NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                                     body: i18n.getMessage("programmingSuccessfulNotification"),
-                                    icon: "/images/pwa/favicon.ico",
+                                    icon: "/images/pwa/wwkj_favicon.ico",
                                 });
                             }
 
@@ -929,9 +929,9 @@ class STM32Protocol {
 
                             // Show notification
                             if (getConfig("showNotifications").showNotifications) {
-                                NotificationManager.showNotification("Betaflight App", {
+                                NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                                     body: i18n.getMessage("programmingFailedNotification"),
-                                    icon: "/images/pwa/favicon.ico",
+                                    icon: "/images/pwa/wwkj_favicon.ico",
                                 });
                             }
 

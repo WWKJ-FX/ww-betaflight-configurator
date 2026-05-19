@@ -1,14 +1,22 @@
 apply plugin: 'com.android.application'
 
+def releaseKeystorePath = System.getenv("WWKJ_ANDROID_KEYSTORE")
+def releaseKeystorePassword = System.getenv("WWKJ_ANDROID_KEYSTORE_PASSWORD")
+def releaseKeyAlias = System.getenv("WWKJ_ANDROID_KEY_ALIAS") ?: "wwkj-wfg100-release"
+def releaseKeyPassword = System.getenv("WWKJ_ANDROID_KEY_PASSWORD") ?: releaseKeystorePassword
+def hasReleaseSigning = releaseKeystorePath != null && releaseKeystorePath.trim() &&
+        releaseKeystorePassword != null && releaseKeystorePassword.trim() &&
+        releaseKeyPassword != null && releaseKeyPassword.trim()
+
 android {
     namespace "betaflight.app"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "betaflight.app"
+        applicationId "com.wwkj.wfg100.betaflight"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 20251221
+        versionName "2025.12.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +24,21 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (hasReleaseSigning) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

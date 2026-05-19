@@ -1,5 +1,5 @@
 {
-  "appId": "betaflight.app",
-  "appName": "Betaflight App",
+  "appId": "com.wwkj.wfg100.betaflight",
+  "appName": "WWKJ WFG100 Betaflight",
   "webDir": "src/dist"
 }

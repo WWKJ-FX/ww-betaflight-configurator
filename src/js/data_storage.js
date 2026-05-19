@@ -16,7 +16,7 @@ const CONFIGURATOR = {
     virtualApiVersion: "0.0.1",
     cliActive: false,
     cliValid: false,
-    productName: "Betaflight App",
+    productName: "WWKJ WFG100 Betaflight",
     cliEngineActive: false,
     cliEngineValid: false,
     gitChangesetId: "unknown",

@@ -3,23 +3,116 @@ import { i18n } from "./localization";
 import { get as getStorage, set as setStorage } from "./SessionStorage";
 import CONFIGURATOR from "./data_storage.js";
 
+const WWKJ_BUILD_API_URL = "https://wwkj-fx.github.io/wfg100-firmware-index";
+const WWKJ_TARGET = "WFG100";
+const WWKJ_RELEASE = "2025.12.2";
+const WWKJ_PREBUILT_FIRMWARE_URL =
+    "https://wwkj-fx.github.io/wfg100-firmware-index/firmware/betaflight_2025.12.2_STM32H743_WFG100.hex";
+
+const WWKJ_FALLBACK_TARGETS = [
+    {
+        target: WWKJ_TARGET,
+        manufacturer: "WWF",
+        mcu: "STM32H743",
+        group: "supported",
+    },
+];
+
+const WWKJ_FALLBACK_TARGET_RELEASES = {
+    target: WWKJ_TARGET,
+    manufacturer: "WWF",
+    created: "2026-05-18T00:00:00",
+    releases: [
+        {
+            release: WWKJ_RELEASE,
+            type: "Stable",
+            date: "18-May-2026 00:00",
+            label: "WWKJ WFG100",
+            cloudBuild: false,
+            prebuilt: true,
+            unifiedConfig: false,
+            withdrawn: false,
+        },
+    ],
+};
+
+const WWKJ_FALLBACK_TARGET_DETAIL = {
+    target: WWKJ_TARGET,
+    manufacturer: "WWF",
+    mcu: "STM32H743",
+    release: WWKJ_RELEASE,
+    releaseType: "Stable",
+    date: "18-May-2026 00:00",
+    releaseUrl: "https://github.com/WWKJ-FX/ww-betaflight/tree/ww-2025.12-maintenance",
+    cloudBuild: false,
+    prebuilt: true,
+    configuration: [],
+    extension: "hex",
+    file: "betaflight_2025.12.2_STM32H743_WFG100.hex",
+    url: WWKJ_PREBUILT_FIRMWARE_URL,
+};
+
+const WWKJ_FALLBACK_OPTIONS = {
+    radioProtocols: [
+        { name: "CRSF", value: "USE_SERIALRX_CRSF", default: true, key: 4097, includesTelemetry: true },
+        { name: "SBUS", value: "USE_SERIALRX_SBUS", default: false, key: 4103 },
+        { name: "MAVLINK", value: "USE_SERIALRX_MAVLINK", default: false, key: 4109 },
+    ],
+    telemetryProtocols: [
+        { name: "[None]", value: "", default: true },
+        { name: "MAVLINK", value: "USE_TELEMETRY_MAVLINK", default: false, key: 12305 },
+        { name: "SMARTPORT", value: "USE_TELEMETRY_SMARTPORT", default: false, key: 12306 },
+    ],
+    generalOptions: [
+        { name: "GPS", value: "USE_GPS", default: true, key: 16412 },
+        { name: "Magnetometers", value: "USE_MAG", default: true, key: 16415 },
+        { name: "OSD (Analog)", value: "USE_OSD_SD", default: true, key: 16416, group: "OSD", groupedName: "Analog" },
+        { name: "Pin IO", value: "USE_PINIO", default: true, key: 16418 },
+        { name: "VTX", value: "USE_VTX", default: true, key: 16421 },
+    ],
+    motorProtocols: [
+        { name: "DSHOT", value: "USE_DSHOT", default: true, key: 8231 },
+        { name: "PWM", value: "USE_PWM_OUTPUT", default: false, key: 8235 },
+    ],
+};
+
 export default class BuildApi {
     constructor() {
-        this._url = "https://build.betaflight.com";
+        this._url = globalThis.BETAFLIGHT_BUILD_API_URL || "https://build.betaflight.com";
+        this._wwkjUrl = globalThis.WWKJ_BUILD_API_URL || WWKJ_BUILD_API_URL;
         this._cacheExpirationPeriod = 3600 * 1000;
+        this._lastTargetWasWwkj = false;
     }
 
     isSuccessCode(code) {
         return code === 200 || code === 201 || code === 202;
     }
 
+    isAbsoluteUrl(url) {
+        return /^https?:\/\//i.test(url);
+    }
+
+    joinUrl(base, path) {
+        return `${String(base).replace(/\/$/, "")}/${String(path).replace(/^\//, "")}`;
+    }
+
+    usesBuildApiHeaders(url) {
+        return !this.isAbsoluteUrl(url) || String(url).startsWith(this._url);
+    }
+
+    requestHeaders(url, extraHeaders = {}) {
+        const headers = { ...extraHeaders };
+        if (this.usesBuildApiHeaders(url)) {
+            headers["User-Agent"] = navigator.userAgent;
+            headers["X-CFG-VER"] = `${CONFIGURATOR.version}`;
+        }
+        return headers;
+    }
+
     async fetchBytes(url) {
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url),
         });
 
         if (this.isSuccessCode(response.status)) {
@@ -33,10 +126,7 @@ export default class BuildApi {
     async fetchText(url) {
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url),
         });
 
         if (this.isSuccessCode(response.status)) {
@@ -50,10 +140,7 @@ export default class BuildApi {
     async fetchJson(url) {
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url),
         });
 
         if (this.isSuccessCode(response.status)) {
@@ -80,10 +167,7 @@ export default class BuildApi {
 
         const response = await fetch(url, {
             method: "GET",
-            headers: {
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url),
         });
 
         if (response.status === 500) {
@@ -103,23 +187,74 @@ export default class BuildApi {
         return result;
     }
 
+    async fetchCachedJsonOptional(url) {
+        try {
+            return await this.fetchCachedJson(url);
+        } catch (error) {
+            console.warn(`[BuildApi] Optional endpoint failed: ${url}`, error);
+            return null;
+        }
+    }
+
     async loadTargets() {
         const url = `${this._url}/api/targets`;
-        return await this.fetchCachedJson(url);
+        const wwkjUrl = this.joinUrl(this._wwkjUrl, "/api/targets");
+        const [targets, wwkjTargets] = await Promise.all([
+            this.fetchCachedJsonOptional(url),
+            this.fetchCachedJsonOptional(wwkjUrl),
+        ]);
+        const mergedWwkjTargets =
+            Array.isArray(wwkjTargets) && wwkjTargets.length > 0 ? wwkjTargets : WWKJ_FALLBACK_TARGETS;
+
+        if (!Array.isArray(targets)) {
+            return mergedWwkjTargets;
+        }
+
+        const mergedTargets = [...targets];
+        const targetIndex = new Map(mergedTargets.map((target, index) => [target.target, index]));
+        for (const wwkjTarget of mergedWwkjTargets) {
+            if (!wwkjTarget?.target) {
+                continue;
+            }
+
+            const existingIndex = targetIndex.get(wwkjTarget.target);
+            if (existingIndex === undefined) {
+                targetIndex.set(wwkjTarget.target, mergedTargets.length);
+                mergedTargets.push(wwkjTarget);
+            } else {
+                mergedTargets[existingIndex] = { ...mergedTargets[existingIndex], ...wwkjTarget };
+            }
+        }
+
+        return mergedTargets;
     }
 
     async loadTargetReleases(target) {
+        if (target === WWKJ_TARGET) {
+            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/targets/${target}`);
+            const wwkjReleases = await this.fetchCachedJsonOptional(wwkjUrl);
+            return wwkjReleases || WWKJ_FALLBACK_TARGET_RELEASES;
+        }
+
         const url = `${this._url}/api/targets/${target}`;
         return await this.fetchCachedJson(url);
     }
 
     async loadTarget(target, release) {
+        if (target === WWKJ_TARGET) {
+            this._lastTargetWasWwkj = true;
+            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/builds/${release}/${target}`);
+            const wwkjTarget = await this.fetchCachedJsonOptional(wwkjUrl);
+            return wwkjTarget || WWKJ_FALLBACK_TARGET_DETAIL;
+        }
+
+        this._lastTargetWasWwkj = false;
         const url = `${this._url}/api/builds/${release}/${target}`;
         return await this.fetchCachedJson(url);
     }
 
     async loadTargetFirmware(path) {
-        const url = `${this._url}${path}`;
+        const url = this.isAbsoluteUrl(path) ? path : `${this._url}${path}`;
         return await this.fetchBytes(url);
     }
 
@@ -133,11 +268,7 @@ export default class BuildApi {
 
         const response = await fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "text/plain",
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url, { "Content-Type": "text/plain" }),
             body: data,
         });
 
@@ -154,11 +285,7 @@ export default class BuildApi {
 
         const response = await fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "User-Agent": navigator.userAgent,
-                "X-CFG-VER": `${CONFIGURATOR.version}`,
-            },
+            headers: this.requestHeaders(url, { "Content-Type": "application/json" }),
             body: JSON.stringify(request),
         });
 
@@ -181,6 +308,12 @@ export default class BuildApi {
     }
 
     async loadOptions(release) {
+        if (this._lastTargetWasWwkj) {
+            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/options/${release}`);
+            const wwkjOptions = await this.fetchCachedJsonOptional(wwkjUrl);
+            return wwkjOptions || WWKJ_FALLBACK_OPTIONS;
+        }
+
         const url = `${this._url}/api/options/${release}`;
         return await this.fetchJson(url);
     }

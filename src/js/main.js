@@ -39,7 +39,8 @@ $(document).ready(function () {
 
 function readConfiguratorVersionMetadata() {
     // These are injected by vite. Check for undefined is needed to prevent race conditions
-    CONFIGURATOR.productName = typeof __APP_PRODUCTNAME__ !== "undefined" ? __APP_PRODUCTNAME__ : "Betaflight App";
+    CONFIGURATOR.productName =
+        typeof __APP_PRODUCTNAME__ !== "undefined" ? __APP_PRODUCTNAME__ : "WWKJ WFG100 Betaflight";
     CONFIGURATOR.version = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "0.0.0";
     CONFIGURATOR.gitRevision = typeof __APP_REVISION__ !== "undefined" ? __APP_REVISION__ : "unknown";
 }

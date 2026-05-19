@@ -1,5 +1,5 @@
 ; ------------------------------------------
-; Installer for Betaflight App
+; Installer for WWKJ WFG100 Betaflight
 ; ------------------------------------------
 ; It receives from the command line with /D the parameters:
 ; version
@@ -9,15 +9,15 @@
 ; sourceFolder
 ; targetFolder
 
-#define ApplicationName "Betaflight App"
-#define CompanyName "The Betaflight open source project"
-#define CompanyUrl "https://betaflight.com/"
+#define ApplicationName "WWKJ WFG100 Betaflight"
+#define CompanyName "WWKJ"
+#define CompanyUrl "https://github.com/WWKJ-FX/"
 #define ExecutableFileName "betaflight-app.exe"
-#define GroupName "Betaflight"
-#define InstallerFileName "betaflight-app_" + version + "_" + archName + "-installer"
+#define GroupName "WWKJ"
+#define InstallerFileName "wwkj-wfg100-betaflight_" + version + "_" + archName + "-installer"
 #define SourcePath "..\..\" + sourceFolder + "\betaflight-app\" + archName
-#define TargetFolderName "Betaflight-App"
-#define UpdatesUrl "https://github.com/betaflight/betaflight-configurator/releases"
+#define TargetFolderName "WWKJ-WFG100-Betaflight"
+#define UpdatesUrl "https://github.com/WWKJ-FX/ww-betaflight-configurator/releases"
 
 [CustomMessages]
 AppName=betaflight-app
@@ -69,7 +69,7 @@ Name: "zh_TW"; MessagesFile: "unofficial_inno_languages\ChineseTraditional.isl"
 Filename: {app}\{cm:AppName}.exe; Description: {cm:LaunchProgram,{cm:AppName}}; Flags: nowait postinstall skipifsilent
 
 [Setup]
-AppId=e72c90bb-45eb-48dc-9cf3-ac2e8ec52f8c
+AppId=b0078e80-cfea-433b-b91c-57f8c9dd5c23
 AppName={#ApplicationName}
 AppPublisher={#CompanyName}
 AppPublisherURL={#CompanyUrl}
@@ -85,7 +85,7 @@ MinVersion=6.2
 OutputBaseFilename={#InstallerFileName}
 OutputDir=..\..\{#targetFolder}\
 PrivilegesRequiredOverridesAllowed=commandline dialog
-SetupIconFile=bf_installer_icon.ico
+SetupIconFile=wwkj_icon.ico
 ShowLanguageDialog=yes
 SolidCompression=yes
 UninstallDisplayIcon={app}\{#ExecutableFileName}
@@ -101,11 +101,11 @@ var
 begin
     Result := '';
     // Look into the different registry entries: win32, win64 and without user rights
-    if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Betaflight App', 'UninstallString', Result) then
+    if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WWKJ WFG100 Betaflight', 'UninstallString', Result) then
     begin
-        if not RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Betaflight App', 'UninstallString', Result) then
+        if not RegQueryStringValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\WWKJ WFG100 Betaflight', 'UninstallString', Result) then
         begin
-            RegQueryStringValue(HKCU, 'SOFTWARE\Betaflight\Betaflight App', 'UninstallString', Result)
+            RegQueryStringValue(HKCU, 'SOFTWARE\WWKJ\WWKJ WFG100 Betaflight', 'UninstallString', Result)
         end;
     end;
 end;

@@ -50,25 +50,55 @@ import "./main";
 
 import GUI from "./gui";
 import { registerSW } from "virtual:pwa-register";
+import { isAndroid } from "./utils/checkCompatibility";
 
-const updateSW = registerSW({
-    onNeedRefresh() {
-        console.log("Detected onNeedRefresh");
-        GUI.showYesNoDialog({
-            title: i18n.getMessage("pwaOnNeedRefreshTitle"),
-            text: i18n.getMessage("pwaOnNeedRefreshText"),
-            buttonYesText: i18n.getMessage("yes"),
-            buttonNoText: i18n.getMessage("no"),
-            buttonYesCallback: () => updateSW(),
-            buttonNoCallback: null,
-        });
-    },
-    onOfflineReady() {
-        console.log("Detected onOfflineReady");
-        GUI.showInformationDialog({
-            title: i18n.getMessage("pwaOnOffilenReadyTitle"),
-            text: i18n.getMessage("pwaOnOffilenReadyText"),
-            buttonConfirmText: i18n.getMessage("OK"),
-        });
-    },
-});
+function isDesktopApp() {
+    return typeof globalThis.nw !== "undefined";
+}
+
+function isLocalPreview() {
+    const hostname = globalThis.location?.hostname;
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+function clearServiceWorkers() {
+    if ("serviceWorker" in navigator && typeof navigator.serviceWorker.getRegistrations === "function") {
+        navigator.serviceWorker
+            .getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+            .catch((error) => console.warn("Failed to unregister service workers", error));
+    }
+
+    if (globalThis.caches && typeof globalThis.caches.keys === "function") {
+        globalThis.caches
+            .keys()
+            .then((keys) => Promise.all(keys.map((key) => globalThis.caches.delete(key))))
+            .catch((error) => console.warn("Failed to clear caches", error));
+    }
+}
+
+if (isDesktopApp() || isAndroid() || isLocalPreview()) {
+    clearServiceWorkers();
+} else {
+    const updateSW = registerSW({
+        onNeedRefresh() {
+            console.log("Detected onNeedRefresh");
+            GUI.showYesNoDialog({
+                title: i18n.getMessage("pwaOnNeedRefreshTitle"),
+                text: i18n.getMessage("pwaOnNeedRefreshText"),
+                buttonYesText: i18n.getMessage("yes"),
+                buttonNoText: i18n.getMessage("no"),
+                buttonYesCallback: () => updateSW(),
+                buttonNoCallback: null,
+            });
+        },
+        onOfflineReady() {
+            console.log("Detected onOfflineReady");
+            GUI.showInformationDialog({
+                title: i18n.getMessage("pwaOnOffilenReadyTitle"),
+                text: i18n.getMessage("pwaOnOffilenReadyText"),
+                buttonConfirmText: i18n.getMessage("OK"),
+            });
+        },
+    });
+}

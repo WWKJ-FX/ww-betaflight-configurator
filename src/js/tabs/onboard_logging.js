@@ -469,9 +469,9 @@ onboard_logging.initialize = function (callback) {
         $(".dataflash-saving").addClass("done");
 
         if (getConfig("showNotifications").showNotifications) {
-            NotificationManager.showNotification("Betaflight App", {
+            NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                 body: i18n.getMessage("flashDownloadDoneNotification"),
-                icon: "/images/pwa/favicon.ico",
+                icon: "/images/pwa/wwkj_favicon.ico",
             });
         }
     }
@@ -615,9 +615,9 @@ onboard_logging.initialize = function (callback) {
                         dialog.close();
                     }
                     if (getConfig("showNotifications").showNotifications) {
-                        NotificationManager.showNotification("Betaflight App", {
+                        NotificationManager.showNotification("WWKJ WFG100 Betaflight", {
                             body: i18n.getMessage("flashEraseDoneNotification"),
-                            icon: "/images/pwa/favicon.ico",
+                            icon: "/images/pwa/wwkj_favicon.ico",
                         });
                     }
                 } else {
