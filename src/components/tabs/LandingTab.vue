@@ -3,11 +3,18 @@
         <div class="content_wrapper">
             <div class="content_top">
                 <div class="logowrapper">
-                    <div class="landing-brand-lockup" aria-hidden="true">
-                        <div class="landing-wwkj-brand">
+                    <div class="landing-brand-lockup">
+                        <a
+                            :href="wwkjWebsiteUrl"
+                            class="landing-wwkj-brand landing-wwkj-link"
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            title="打开物唯官网"
+                            @click="openWwkjWebsite"
+                        >
                             <img class="landing-wwkj-logo" src="/images/wwkj_logo.png" alt="" />
                             <span class="landing-wwkj-name">物唯</span>
-                        </div>
+                        </a>
                         <img class="landing-bf-logo" src="/images/bf_logo_white.svg" alt="" />
                     </div>
                     <div v-html="$t('defaultWelcomeIntro')"></div>
@@ -89,6 +96,8 @@ import GUI from "../../js/gui";
 import { i18n } from "../../js/localization";
 import Sponsor from "../../js/Sponsor";
 
+const WWKJ_WEBSITE_URL = "https://www.wwzhyun.cn/";
+
 export default defineComponent({
     name: "LandingTab",
     components: {
@@ -109,6 +118,13 @@ export default defineComponent({
             }
         }
 
+        function openWwkjWebsite(event) {
+            if (globalThis.nw?.Shell?.openExternal) {
+                event.preventDefault();
+                globalThis.nw.Shell.openExternal(WWKJ_WEBSITE_URL);
+            }
+        }
+
         onMounted(() => {
             // Load sponsor tile - wrap with jQuery for Sponsor.js compatibility
             if (sponsorContainer.value) {
@@ -122,6 +138,8 @@ export default defineComponent({
             availableLanguages,
             selectedLanguage,
             changeLanguage,
+            openWwkjWebsite,
+            wwkjWebsiteUrl: WWKJ_WEBSITE_URL,
         };
     },
 });
@@ -156,6 +174,17 @@ export default defineComponent({
     display: flex;
     align-items: center;
     gap: 12px;
+}
+.landing-wwkj-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+}
+.landing-wwkj-link:focus-visible {
+    outline: 2px solid #ffae00;
+    outline-offset: 6px;
 }
 .landing-wwkj-logo {
     display: block;
