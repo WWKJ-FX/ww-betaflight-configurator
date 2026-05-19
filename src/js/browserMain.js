@@ -12,11 +12,29 @@ import { i18n } from "./localization";
 import { pinia } from "./pinia_instance";
 import { useDialogStore } from "../stores/dialog";
 import { registerSW } from "virtual:pwa-register";
-import { isAndroid, isEmbeddedDeployment } from "./utils/checkCompatibility.js";
+import { isAndroid, isEmbeddedDeployment, isTauri } from "./utils/checkCompatibility.js";
 
-// Skip PWA/service-worker on embedded deployments (WebSocket-only host, plain HTTP)
-// and Android native builds where they are unnecessary
-if (!isAndroid() && !isEmbeddedDeployment()) {
+function clearDesktopServiceWorkers() {
+    if ("serviceWorker" in navigator && typeof navigator.serviceWorker.getRegistrations === "function") {
+        navigator.serviceWorker
+            .getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+            .catch((error) => console.warn("Failed to unregister desktop service workers", error));
+    }
+
+    if (globalThis.caches && typeof globalThis.caches.keys === "function") {
+        globalThis.caches
+            .keys()
+            .then((keys) => Promise.all(keys.map((key) => globalThis.caches.delete(key))))
+            .catch((error) => console.warn("Failed to clear desktop caches", error));
+    }
+}
+
+// Skip PWA/service-worker on desktop Tauri, embedded deployments
+// (WebSocket-only host, plain HTTP), and Android native builds.
+if (isTauri()) {
+    clearDesktopServiceWorkers();
+} else if (!isAndroid() && !isEmbeddedDeployment()) {
     const dialogStore = useDialogStore(pinia);
     const updateSW = registerSW({
         onNeedRefresh() {

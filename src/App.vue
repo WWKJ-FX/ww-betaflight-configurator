@@ -222,7 +222,7 @@ watch(
     display: none;
 }
 
-/* Mobile top bar — hamburger left, centred wide logo, auto-hides on scroll down. */
+/* Mobile top bar: hamburger left, centered logo, auto-hides on scroll down. */
 .mobile-topbar {
     display: none;
     position: fixed;

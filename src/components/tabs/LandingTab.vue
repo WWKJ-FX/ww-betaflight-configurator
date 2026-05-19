@@ -3,7 +3,13 @@
         <div class="content_wrapper">
             <div class="content_top">
                 <div class="logowrapper">
-                    <img src="/images/bf_logo_white.svg" alt="" />
+                    <div class="landing-brand-lockup" aria-hidden="true">
+                        <div class="landing-wwkj-brand">
+                            <img class="landing-wwkj-logo" src="/images/wwkj_logo.png" alt="" />
+                            <span class="landing-wwkj-name">物唯</span>
+                        </div>
+                        <img class="landing-bf-logo" src="/images/bf_logo_white.svg" alt="" />
+                    </div>
                     <div v-html="$t('defaultWelcomeIntro')"></div>
                 </div>
             </div>
@@ -145,15 +151,23 @@ export default defineComponent({
 .content_wrapper {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
     padding: 0;
     height: unset;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .content_top {
+    position: relative;
     height: 140px;
     padding: 20px;
     margin-bottom: 15px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .text1,
@@ -231,6 +245,9 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
+    min-width: 0;
+    padding-top: 90px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 5px;
@@ -243,15 +260,63 @@ export default defineComponent({
         text-align: center;
     }
 
-    img {
-        width: 600px;
-        margin: 5px;
-    }
-
     span {
         font-size: 22px;
         font-weight: 300;
     }
+}
+
+.landing-brand-lockup {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: min(620px, calc(100% - 48px));
+    min-width: 0;
+    margin: 0;
+}
+
+.landing-wwkj-brand {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.landing-bf-logo {
+    display: block;
+    flex: 0 0 240px;
+    width: 240px;
+    max-width: 36%;
+    height: auto;
+    min-width: 0;
+    max-height: 70px;
+    object-fit: contain;
+}
+
+.landing-wwkj-logo {
+    display: block;
+    flex: 0 0 98px;
+    width: 98px;
+    height: auto;
+    min-width: 0;
+    max-height: 58px;
+    object-fit: contain;
+}
+
+.landing-wwkj-name {
+    color: #111;
+    flex: 0 0 auto;
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .socialMediaParagraph {
@@ -312,9 +377,45 @@ export default defineComponent({
 @media all and (max-width: 575px) {
     .logowrapper {
         width: auto;
-        img {
-            width: auto;
-        }
+    }
+    .landing-brand-lockup {
+        width: calc(100% - 24px);
+        gap: 10px;
+    }
+    .landing-wwkj-brand {
+        gap: 8px;
+    }
+    .landing-bf-logo {
+        flex-basis: 180px;
+        width: 180px;
+        max-height: 58px;
+    }
+    .landing-wwkj-logo {
+        flex-basis: 72px;
+        width: 72px;
+        max-height: 48px;
+    }
+    .landing-wwkj-name {
+        font-size: 48px;
+    }
+}
+
+@media all and (max-width: 1055px) {
+    .landing-brand-lockup {
+        gap: 12px;
+        width: min(560px, calc(100% - 48px));
+    }
+    .landing-wwkj-logo {
+        flex-basis: 84px;
+        width: 84px;
+    }
+    .landing-wwkj-name {
+        font-size: 58px;
+    }
+    .landing-bf-logo {
+        flex-basis: 210px;
+        width: 210px;
+        max-width: 34%;
     }
 }
 
@@ -323,7 +424,7 @@ export default defineComponent({
         height: auto;
         padding: 10px 20px;
     }
-    .logowrapper img {
+    .landing-brand-lockup {
         display: none;
     }
 }

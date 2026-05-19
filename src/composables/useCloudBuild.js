@@ -228,11 +228,14 @@ export function useCloudBuild(params) {
         try {
             const firmware = await loadFirmwareWithRetry(response.url, response.file);
             if (firmware) {
-                processFile(firmware, response.file);
+                await processFile(firmware, response.file);
+                return true;
             }
         } catch (error) {
             console.error("[CLOUD_BUILD] Failed to load firmware:", error);
         }
+
+        return false;
     };
 
     /**
@@ -313,6 +316,22 @@ export function useCloudBuild(params) {
      */
     const requestCloudBuild = async (targetDetail, additionalParams) => {
         const { isConfigLocal } = additionalParams;
+
+        if (targetDetail.prebuilt === true) {
+            console.info("[CLOUD_BUILD] Prebuilt firmware target:", targetDetail);
+            updateCloudBuildStatus($t("firmwareFlasherButtonDownloading"), 0);
+            enableCancelBuildButton(false);
+            const firmwareLoaded = await downloadDirectFirmware(targetDetail);
+            if (!firmwareLoaded) {
+                updateCloudBuildStatus($t("firmwareFlasherCloudBuildFail"), 0);
+                enableLoadRemoteFileButton(true);
+                return null;
+            }
+
+            updateCloudBuildStatus($t("firmwareFlasherCloudBuildSuccess"), 100);
+            return targetDetail;
+        }
+
         const request = buildRequestConfig(targetDetail, additionalParams);
 
         console.info("[CLOUD_BUILD] Build request:", request);

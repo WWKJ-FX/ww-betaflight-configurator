@@ -1,8 +1,8 @@
 {
     "$schema": "https://schema.tauri.app/config/2",
-    "productName": "Betaflight App",
-    "version": "2026.6.0",
-    "identifier": "com.betaflight.app",
+    "productName": "WWKJ WFG100 Betaflight",
+    "version": "2026.6.1",
+    "identifier": "com.wwkj.wfg100.betaflight",
     "build": {
         "beforeDevCommand": "npm run dev",
         "beforeBuildCommand": "npm run tauri:prebuild",
@@ -18,7 +18,7 @@
         },
         "windows": [
             {
-                "title": "Betaflight App",
+                "title": "WWKJ WFG100 Betaflight",
                 "width": 1024,
                 "height": 550,
                 "minWidth": 1024,
@@ -38,13 +38,13 @@
             "nsis"
         ],
         "icon": [
-            "icons/bf_icon_128.png",
-            "icons/icon.ico"
+            "icons/wwkj_icon_256.png",
+            "icons/wwkj_icon.ico"
         ],
         "category": "Utility",
-        "copyright": "The Betaflight open source project.",
-        "shortDescription": "Configuration and management application for Betaflight flight controllers.",
-        "longDescription": "Crossplatform configuration and management application for the Betaflight flight control firmware."
+        "copyright": "The Betaflight open source project and WWKJ-FX.",
+        "shortDescription": "Configuration and firmware flashing application for Betaflight WFG100 flight controllers.",
+        "longDescription": "Cross-platform configuration and management application for Betaflight firmware with WWKJ WFG100 firmware support."
     },
     "plugins": {
         "shell": {

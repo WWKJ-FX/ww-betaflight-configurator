@@ -162,7 +162,7 @@ export default defineConfig({
                 // 5MB
                 maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
             },
-            includeAssets: ["favicon.ico", "apple-touch-icon.png"],
+            includeAssets: ["wwkj_favicon.ico", "wwkj_icon_128.png", "wwkj_icon_192.png", "wwkj_icon_512.png"],
             manifest: {
                 name: pkg.displayName,
                 short_name: pkg.productName,
@@ -170,12 +170,12 @@ export default defineConfig({
                 theme_color: "#ffffff",
                 icons: [
                     {
-                        src: "/images/pwa/pwa-192-192.png",
+                        src: "/images/pwa/wwkj_icon_192.png",
                         sizes: "192x192",
                         type: "image/png",
                     },
                     {
-                        src: "/images/pwa/pwa-512-512.png",
+                        src: "/images/pwa/wwkj_icon_512.png",
                         sizes: "512x512",
                         type: "image/png",
                     },

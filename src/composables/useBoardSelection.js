@@ -103,7 +103,8 @@ export function useBoardSelection(params) {
      * Populate the target/board list from API response
      */
     const populateTargetList = async (targets) => {
-        if (!targets || !ispConnected()) {
+        const hasBundledWfg100 = Array.isArray(targets) && targets.some((descriptor) => descriptor.target === "WFG100");
+        if (!targets || (!ispConnected() && !hasBundledWfg100)) {
             updateTargetQualification(null);
             state.boardOptions = [];
             state.firmwareVersionOptions = [];

@@ -1,9 +1,9 @@
 {
   "name": "betaflight-app",
-  "productName": "Betaflight",
-  "displayName": "Betaflight - Configuration and management application",
+  "productName": "WWKJ WFG100 Betaflight",
+  "displayName": "WWKJ WFG100 Betaflight - Configuration and management application",
   "description": "Crossplatform configuration and management application for the Betaflight flight control firmware.",
-  "version": "2026.6.0-alpha",
+  "version": "2026.6.1-alpha",
   "type": "module",
   "main": "index.html",
   "scripts": {
@@ -19,7 +19,7 @@
     "android:open": "vite build && node capacitor.config.generator.mjs && npx cap open android",
     "android:run": "vite build && node capacitor.config.generator.mjs && npx cap run android",
     "android:sync": "vite build && node capacitor.config.generator.mjs && npx cap sync android",
-    "android:release": "vite build && node capacitor.config.generator.mjs && npx cap build android --release",
+    "android:release": "vite build && node capacitor.config.generator.mjs && npx cap sync android && cd android && gradlew.bat assembleRelease",
     "tauri:dev": "node scripts/check-tauri-prereqs.mjs && cross-env TAURI_DEV=1 tauri dev",
     "tauri:build": "node scripts/check-tauri-prereqs.mjs && tauri build",
     "tauri:prebuild": "node scripts/sync-tauri-version.mjs && vite build",
@@ -28,11 +28,11 @@
     "prepare": "husky"
   },
   "window": {
-    "icon": "images/bf_icon_128.png",
+    "icon": "images/pwa/wwkj_icon_512.png",
     "id": "main-window",
     "min_width": 1024,
     "min_height": 550,
-    "title": "Betaflight App"
+    "title": "WWKJ WFG100 Betaflight"
   },
   "repository": {
     "type": "git",
