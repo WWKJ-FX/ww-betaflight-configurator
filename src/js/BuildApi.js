@@ -3,54 +3,99 @@ import { i18n } from "./localization";
 import { get as getStorage, set as setStorage } from "./SessionStorage";
 import CONFIGURATOR from "./data_storage.js";
 
-const WWKJ_BUILD_API_URL = "https://wwkj-fx.github.io/wfg100-firmware-index";
-const WWKJ_TARGET = "WFG100";
-const WWKJ_RELEASE = "2025.12.2";
-const WWKJ_PREBUILT_FIRMWARE_URL =
-    "https://wwkj-fx.github.io/wfg100-firmware-index/firmware/betaflight_2025.12.2_STM32H743_WFG100.hex";
-
-const WWKJ_FALLBACK_TARGETS = [
+const WWKJ_FIRMWARE_INDEXES = [
     {
-        target: WWKJ_TARGET,
-        manufacturer: "WWF",
-        mcu: "STM32H743",
-        group: "supported",
-    },
-];
-
-const WWKJ_FALLBACK_TARGET_RELEASES = {
-    target: WWKJ_TARGET,
-    manufacturer: "WWF",
-    created: "2026-05-18T00:00:00",
-    releases: [
-        {
-            release: WWKJ_RELEASE,
-            type: "Stable",
+        target: "WFG100",
+        url: "https://wwkj-fx.github.io/wfg100-firmware-index",
+        fallbackTargets: [
+            {
+                target: "WFG100",
+                manufacturer: "WWF",
+                mcu: "STM32H743",
+                group: "supported",
+            },
+        ],
+        fallbackTargetReleases: {
+            target: "WFG100",
+            manufacturer: "WWF",
+            created: "2026-05-18T00:00:00",
+            releases: [
+                {
+                    release: "2025.12.2",
+                    type: "Stable",
+                    date: "18-May-2026 00:00",
+                    label: "WWKJ WFG100",
+                    cloudBuild: false,
+                    prebuilt: true,
+                    unifiedConfig: false,
+                    withdrawn: false,
+                },
+            ],
+        },
+        fallbackTargetDetail: {
+            target: "WFG100",
+            manufacturer: "WWF",
+            mcu: "STM32H743",
+            release: "2025.12.2",
+            releaseType: "Stable",
             date: "18-May-2026 00:00",
-            label: "WWKJ WFG100",
+            releaseUrl: "https://github.com/WWKJ-FX/ww-betaflight/tree/ww-2025.12-maintenance",
             cloudBuild: false,
             prebuilt: true,
-            unifiedConfig: false,
-            withdrawn: false,
+            configuration: [],
+            extension: "hex",
+            file: "betaflight_2025.12.2_STM32H743_WFG100.hex",
+            url: "https://wwkj-fx.github.io/wfg100-firmware-index/firmware/betaflight_2025.12.2_STM32H743_WFG100.hex",
         },
-    ],
-};
-
-const WWKJ_FALLBACK_TARGET_DETAIL = {
-    target: WWKJ_TARGET,
-    manufacturer: "WWF",
-    mcu: "STM32H743",
-    release: WWKJ_RELEASE,
-    releaseType: "Stable",
-    date: "18-May-2026 00:00",
-    releaseUrl: "https://github.com/WWKJ-FX/ww-betaflight/tree/ww-2025.12-maintenance",
-    cloudBuild: false,
-    prebuilt: true,
-    configuration: [],
-    extension: "hex",
-    file: "betaflight_2025.12.2_STM32H743_WFG100.hex",
-    url: WWKJ_PREBUILT_FIRMWARE_URL,
-};
+    },
+    {
+        target: "WFG120",
+        url: "https://wwkj-fx.github.io/wfg120-firmware-index",
+        fallbackTargets: [
+            {
+                target: "WFG120",
+                manufacturer: "WWF",
+                mcu: "STM32H743",
+                group: "supported",
+            },
+        ],
+        fallbackTargetReleases: {
+            target: "WFG120",
+            manufacturer: "WWF",
+            created: "2026-08-17T18:51:18",
+            releases: [
+                {
+                    release: "2025.12.2-v4",
+                    type: "Stable",
+                    date: "17-Aug-2026 18:51",
+                    label: "WWKJ WFG120",
+                    cloudBuild: false,
+                    prebuilt: true,
+                    unifiedConfig: false,
+                    withdrawn: false,
+                },
+            ],
+        },
+        fallbackTargetDetail: {
+            target: "WFG120",
+            manufacturer: "WWF",
+            mcu: "STM32H743",
+            release: "2025.12.2-v4",
+            releaseType: "Stable",
+            date: "17-Aug-2026 18:51",
+            releaseUrl: "https://github.com/WWKJ-FX/ww-betaflight/releases/tag/ww-2025.12.2-v4",
+            cloudBuild: false,
+            prebuilt: true,
+            configuration: [],
+            extension: "hex",
+            file: "ww_betaflight_2025.12.2_STM32H743_v4_WFG120.hex",
+            url: "https://wwkj-fx.github.io/wfg120-firmware-index/firmware/ww_betaflight_2025.12.2_STM32H743_v4_WFG120.hex",
+            gitSha: "unknown-local-build",
+            sha256: "2ed6f04fe7eb04028e95637d48ff30b57842c7ff66b5b37d7f8c93950026c60e",
+            size: 1597655,
+        },
+    },
+];
 
 const WWKJ_FALLBACK_OPTIONS = {
     radioProtocols: [
@@ -79,9 +124,22 @@ const WWKJ_FALLBACK_OPTIONS = {
 export default class BuildApi {
     constructor() {
         this._url = globalThis.BETAFLIGHT_BUILD_API_URL || "https://build.betaflight.com";
-        this._wwkjUrl = globalThis.WWKJ_BUILD_API_URL || WWKJ_BUILD_API_URL;
+        this._wwkjIndexes = WWKJ_FIRMWARE_INDEXES.map((index) => ({
+            ...index,
+            url: this.getConfiguredWwkjUrl(index),
+        }));
+        this._wwkjIndexByTarget = new Map(this._wwkjIndexes.map((index) => [index.target, index]));
         this._cacheExpirationPeriod = 3600 * 1000;
-        this._lastTargetWasWwkj = false;
+        this._lastWwkjIndex = null;
+    }
+
+    getConfiguredWwkjUrl(index) {
+        if (index.target === "WFG100" && globalThis.WWKJ_BUILD_API_URL) {
+            return globalThis.WWKJ_BUILD_API_URL;
+        }
+
+        const targetSpecificUrl = globalThis[`WWKJ_${index.target}_BUILD_API_URL`];
+        return targetSpecificUrl || index.url;
     }
 
     isSuccessCode(code) {
@@ -198,13 +256,17 @@ export default class BuildApi {
 
     async loadTargets() {
         const url = `${this._url}/api/targets`;
-        const wwkjUrl = this.joinUrl(this._wwkjUrl, "/api/targets");
-        const [targets, wwkjTargets] = await Promise.all([
+        const [targets, wwkjTargetLists] = await Promise.all([
             this.fetchCachedJsonOptional(url),
-            this.fetchCachedJsonOptional(wwkjUrl),
+            Promise.all(
+                this._wwkjIndexes.map(async (index) => {
+                    const wwkjUrl = this.joinUrl(index.url, "/api/targets");
+                    const wwkjTargets = await this.fetchCachedJsonOptional(wwkjUrl);
+                    return Array.isArray(wwkjTargets) && wwkjTargets.length > 0 ? wwkjTargets : index.fallbackTargets;
+                }),
+            ),
         ]);
-        const mergedWwkjTargets =
-            Array.isArray(wwkjTargets) && wwkjTargets.length > 0 ? wwkjTargets : WWKJ_FALLBACK_TARGETS;
+        const mergedWwkjTargets = wwkjTargetLists.flat();
 
         if (!Array.isArray(targets)) {
             return mergedWwkjTargets;
@@ -230,10 +292,11 @@ export default class BuildApi {
     }
 
     async loadTargetReleases(target) {
-        if (target === WWKJ_TARGET) {
-            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/targets/${target}`);
+        const wwkjIndex = this._wwkjIndexByTarget.get(target);
+        if (wwkjIndex) {
+            const wwkjUrl = this.joinUrl(wwkjIndex.url, `/api/targets/${target}`);
             const wwkjReleases = await this.fetchCachedJsonOptional(wwkjUrl);
-            return wwkjReleases || WWKJ_FALLBACK_TARGET_RELEASES;
+            return wwkjReleases || wwkjIndex.fallbackTargetReleases;
         }
 
         const url = `${this._url}/api/targets/${target}`;
@@ -241,14 +304,15 @@ export default class BuildApi {
     }
 
     async loadTarget(target, release) {
-        if (target === WWKJ_TARGET) {
-            this._lastTargetWasWwkj = true;
-            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/builds/${release}/${target}`);
+        const wwkjIndex = this._wwkjIndexByTarget.get(target);
+        if (wwkjIndex) {
+            this._lastWwkjIndex = wwkjIndex;
+            const wwkjUrl = this.joinUrl(wwkjIndex.url, `/api/builds/${release}/${target}`);
             const wwkjTarget = await this.fetchCachedJsonOptional(wwkjUrl);
-            return wwkjTarget || WWKJ_FALLBACK_TARGET_DETAIL;
+            return wwkjTarget || wwkjIndex.fallbackTargetDetail;
         }
 
-        this._lastTargetWasWwkj = false;
+        this._lastWwkjIndex = null;
         const url = `${this._url}/api/builds/${release}/${target}`;
         return await this.fetchCachedJson(url);
     }
@@ -308,8 +372,8 @@ export default class BuildApi {
     }
 
     async loadOptions(release) {
-        if (this._lastTargetWasWwkj) {
-            const wwkjUrl = this.joinUrl(this._wwkjUrl, `/api/options/${release}`);
+        if (this._lastWwkjIndex) {
+            const wwkjUrl = this.joinUrl(this._lastWwkjIndex.url, `/api/options/${release}`);
             const wwkjOptions = await this.fetchCachedJsonOptional(wwkjUrl);
             return wwkjOptions || WWKJ_FALLBACK_OPTIONS;
         }
